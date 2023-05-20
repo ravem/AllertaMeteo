@@ -1,8 +1,10 @@
 #! /bin/bash
 
-#pulisco 
+#pulisco lo schermo 
 clear
-rm alert.txt
+if [ -e "alert.txt" ]; then
+mv alert.txt alert_old.txt
+fi
 
 #parametri per inviare il messaggio telegram
 TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -56,7 +58,11 @@ else
 	echo "Nessuna allerta per domani per il Comune di xxxyyy"
     fi 
 
-#Invio il messaggio Telegram al gruppo
+#il job che esegue lo script gira ogni 5 ore, di seguito controllo se il file scaricato è uguale al precedente.
+#se lo è non invio aggiornamenti, altrimenti lo mando il messaggio via telegram
 
+if ! cmp -s "alert.txt" "alert_old.txt"; then 
 curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID --data-urlencode text@alert.txt > /dev/null
+fi
+
 
