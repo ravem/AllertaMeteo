@@ -2,9 +2,9 @@
 
 #pulisco lo schermo 
 clear
-if [ -e "alert.txt" ]; then
-mv alert.txt alert_old.txt
-fi
+ if [ -e "alert.txt" ]; then
+    mv alert.txt alert_old.txt
+    fi
 
 #parametri per inviare il messaggio telegram
 TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -12,12 +12,12 @@ CHAT_ID="XXXXXXXXXXXXXXX"
 
 
 #scarico i file dei bollettini
-curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-criticita-idrogeologica-idraulica/main/data/bollettini/bollettino-oggi-zone-latest.csv
+#curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-criticita-idrogeologica-idraulica/main/data/bollettini/bollettino-oggi-zone-latest.csv
 curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-criticita-idrogeologica-idraulica/main/data/bollettini/bollettino-domani-zone-latest.csv
-curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-criticita-idrogeologica-idraulica/main/data/bollettini/bollettino-oggi-comuni-latest.csv
+#curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-criticita-idrogeologica-idraulica/main/data/bollettini/bollettino-oggi-comuni-latest.csv
 curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-criticita-idrogeologica-idraulica/main/data/bollettini/bollettino-domani-comuni-latest.csv
 
-#processo i dati, e ho commentato i dati del bolletino per la giornata odierna che sono meno significativi per il mio scopo
+#processo i dati, ho commentato i dati del bollettino per la giornata odierna che sono meno significativi per il mio scopo
 # i valori XXXYYYY e xxxyyy vanno rispettivamente sostituiti con il nome della zona di riferimento, e del comune di interesse
 
 #dati zona XXXYYYY per oggi
@@ -36,30 +36,22 @@ awk -F , '$5 == "xxxyyy" {print "Zona di validità, comune di:", $5, "\n", "Boll
 #cerco occorrenze delle parole chiave ALLERTA GIALLA ARANCIONE ROSSA
  # if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_oggi_zona.txt; then
     # cat allerta_oggi_zona.txt  >> alert.txt 
-# else
-	# echo "Nessuna allerta per oggi per la zona XXXYYYY"
     # fi 
 	
- if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_domani_zona.txt; then
+if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_domani_zona.txt; then
     cat allerta_domani_zona.txt >> alert.txt
-else
-	echo "Nessuna allerta per domani per la zona XXXYYYY"
     fi    
 	
  # if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_oggi_comune.txt; then
     # cat allerta_oggi_comune.txt >> alert.txt
-# else
-	# echo "Nessuna allerta per oggi per il Comune di xxxyyy"
     # fi 
 
  if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_domani_comune.txt; then
     cat allerta_domani_comune.txt >> alert.txt
-else
-	echo "Nessuna allerta per domani per il Comune di xxxyyy"
     fi 
 
 #il job che esegue lo script gira ogni 5 ore, di seguito controllo se il file scaricato è uguale al precedente.
-#se lo è non invio aggiornamenti, altrimenti lo mando il messaggio via telegram
+#se è diverso mando l'aggiornamento via telegram
 
 if ! cmp -s "alert.txt" "alert_old.txt"; then 
 curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID --data-urlencode text@alert.txt > /dev/null
