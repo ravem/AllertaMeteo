@@ -11,6 +11,7 @@ Il sistema è sperimentale e NON va usato che a scopo informativo, le informazio
 
 
 NOTA RELATIVA AI DATI RIPORTATI (dal readme contenuto nei bollettini emessi dal Dipartimento)
+
 *Il Bollettino di criticità nazionale/allerta è una sintesi delle valutazioni di criticità emesse dai Centri Funzionali Decentrati delle Regioni e Province Autonome.
 La valutazione viene effettuata in modo indipendente per tre rischi:
                .Rischio Idrogeologico
