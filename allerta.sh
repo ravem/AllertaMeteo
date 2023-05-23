@@ -1,10 +1,15 @@
 #! /bin/bash
-
-#pulisco lo schermo 
+#
+#SOSTITUIRE COME NECESSARIO I PERCORSI NELLO SCRIPT
+#
+#sposto il vecchio file di allerta per confrontarlo in caso di aggiornamenti 
 clear
- if [ -e "alert.txt" ]; then
-    mv alert.txt alert_old.txt
-    fi
+if [ -e "/directory_di_lavoro/alert.txt" ]; then
+mv /directory_di_lavoro/alert.txt /directory_di_lavoro/alert_old.txt
+fi
+
+#creo il file alert.txt vuoto per evitare che vada in errore la pubblicazione del report html
+touch /directory_di_lavoro/alert.txt
 
 #parametri per inviare il messaggio telegram
 TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -24,13 +29,13 @@ curl -O -s https://raw.githubusercontent.com/opendatasicilia/DPC-bollettini-crit
 # awk -F , '$4 == "XXXYYYY" {print "Zona di validità:", $4, "\n", "Bollettino emesso il", substr($1,9,2)"/"substr($1,6,2)"/"substr($1,1,4) " alle ore " substr($1,12,8), "\n", "Inizio validità:", substr($2,9,2)"/"substr($2,6,2)"/"substr($2,1,4) " alle ore " substr($2,12,8), "\n", "Termine validità",  substr($3,9,2) "/"substr($3,6,2)"/"substr($3,1,4) " alle ore " substr($3,12,8), "\n", "Avviso di criticità:", $5, "\n", "Avviso idrogeologico", $6, "\n", "Avviso temporali", $7, "\n", "Avviso idraulico", $7, "\n" }' bollettino-oggi-zone-latest.csv |awk '{$1=$1};1' > allerta_oggi_zona.txt
 
 #dati zona XXXYYYY per domani
-awk -F , '$4 == "XXXYYYY" {print "Zona di validità:", $4, "\n", "Bollettino emesso il", substr($1,9,2)"/"substr($1,6,2)"/"substr($1,1,4) " alle ore " substr($1,12,8), "\n", "Inizio validità:", substr($2,9,2)"/"substr($2,6,2)"/"substr($2,1,4) " alle ore " substr($2,12,8), "\n", "Termine validità",  substr($3,9,2) "/"substr($3,6,2)"/"substr($3,1,4) " alle ore " substr($3,12,8), "\n", "Avviso di criticità:", $5, "\n", "Avviso idrogeologico", $6, "\n", "Avviso temporali", $7, "\n", "Avviso idraulico", $7, "\n" }'  bollettino-domani-zone-latest.csv |awk '{$1=$1};1'  > allerta_domani_zona.txt
+awk -F , '$4 == "XXXYYYY" {print "Zona di validità:", $4, "\n", "Bollettino emesso il", substr($1,9,2)"/"substr($1,6,2)"/"substr($1,1,4) " alle ore " substr($1,12,8), "\n", "Inizio validità:", substr($2,9,2)"/"substr($2,6,2)"/"substr($2,1,4) " alle ore " substr($2,12,8), "\n", "Termine validità",  substr($3,9,2) "/"substr($3,6,2)"/"substr($3,1,4) " alle ore " substr($3,12,8), "\n", "Avviso di criticità:", $5, "\n", "Avviso idrogeologico", $6, "\n", "Avviso temporali", $7, "\n", "Avviso idraulico", $7, "\n" }'  bollettino-domani-zone-latest.csv |awk '{$1=$1};1'  > /directory_di_lavoro/allerta_domani_zona.txt
 
 #dati comune di xxxyyy per oggi
 # awk -F , '$5 == "xxxyyy" {print "Zona di validità, comune di:", $5, "\n", "Bollettino emesso il", substr($1,9,2)"/"substr($1,6,2)"/"substr($1,1,4) " alle ore " substr($1,12,8), "\n", "Inizio validità:", substr($2,9,2)"/"substr($2,6,2)"/"substr($2,1,4) " alle ore " substr($2,12,8), "\n", "Termine validità",  substr($3,9,2) "/"substr($3,6,2)"/"substr($3,1,4) " alle ore " substr($3,12,8), "\n", "Avviso di criticità:", $9, "\n", "Avviso idrogeologico", $10, "\n", "Avviso temporali", $11, "\n", "Avviso idraulico", $12, "\n" }'  bollettino-oggi-comuni-latest.csv |awk '{$1=$1};1' > allerta_oggi_comune.txt
 
 #dati comune di xxxyyy per domani
-awk -F , '$5 == "xxxyyy" {print "Zona di validità, comune di:", $5, "\n", "Bollettino emesso il", substr($1,9,2)"/"substr($1,6,2)"/"substr($1,1,4) " alle ore " substr($1,12,8), "\n", "Inizio validità:", substr($2,9,2)"/"substr($2,6,2)"/"substr($2,1,4) " alle ore " substr($2,12,8), "\n", "Termine validità",  substr($3,9,2) "/"substr($3,6,2)"/"substr($3,1,4) " alle ore " substr($3,12,8), "\n", "Avviso di criticità:", $9, "\n", "Avviso idrogeologico", $10, "\n", "Avviso temporali", $11, "\n", "Avviso idraulico", $12, "\n" }'  bollettino-domani-comuni-latest.csv |awk '{$1=$1};1' > allerta_domani_comune.txt
+awk -F , '$5 == "xxxyyy" {print "Zona di validità, comune di:", $5, "\n", "Bollettino emesso il", substr($1,9,2)"/"substr($1,6,2)"/"substr($1,1,4) " alle ore " substr($1,12,8), "\n", "Inizio validità:", substr($2,9,2)"/"substr($2,6,2)"/"substr($2,1,4) " alle ore " substr($2,12,8), "\n", "Termine validità",  substr($3,9,2) "/"substr($3,6,2)"/"substr($3,1,4) " alle ore " substr($3,12,8), "\n", "Avviso di criticità:", $9, "\n", "Avviso idrogeologico", $10, "\n", "Avviso temporali", $11, "\n", "Avviso idraulico", $12, "\n" }'  bollettino-domani-comuni-latest.csv |awk '{$1=$1};1' > /directory_di_lavoro/allerta_domani_comune.txt
 
 
 #cerco occorrenze delle parole chiave ALLERTA GIALLA ARANCIONE ROSSA
@@ -39,7 +44,7 @@ awk -F , '$5 == "xxxyyy" {print "Zona di validità, comune di:", $5, "\n", "Boll
     # fi 
 	
 if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_domani_zona.txt; then
-    cat allerta_domani_zona.txt >> alert.txt
+    cat /directory_di_lavoro/allerta_domani_zona.txt >> /directory_di_lavoro/alert.txt
     fi    
 	
  # if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_oggi_comune.txt; then
@@ -47,14 +52,66 @@ if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_domani_zona.txt; then
     # fi 
 
  if grep -Eq "GIALLA|ARANCIONE|ROSSA" allerta_domani_comune.txt; then
-    cat allerta_domani_comune.txt >> alert.txt
+    cat /directory_di_lavoro/allerta_domani_comune.txt >> /directoy_di_lavoro/alert.txt
     fi 
 
-#il job che esegue lo script gira ogni 5 ore, di seguito controllo se il file scaricato è uguale al precedente.
-#se è diverso mando l'aggiornamento via telegram
+#il job che esegue lo script gira ogni n ore, di seguito controllo se il file scaricato è uguale al precedente.
+#se è diverso mando l'aggiornamento via telegram 
 
-if ! cmp -s "alert.txt" "alert_old.txt"; then 
-curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID --data-urlencode text@alert.txt > /dev/null
+if ! cmp -s "/directory_di_lavoro/alert.txt" "/directory_di_lavoro/alert_old.txt"; then 
+curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID --data-urlencode text@alert.txt > /dev/null 
+
+#pubblico la pagina html
+filename="/directory_di_lavoro/alert.txt"
+htmlfile="/directory_web/index.html"
+header='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+         "http://www.w3.org/TR/html4/strict.dtd">
+  <head>
+    <title>Allerta meteo</title>
+		<style type="text/css">
+	pre{font-size:150%;}
+	</style>
+  </head>
+  <body>
+    <pre>
+'
+footer='
+    </pre>
+</html>'
+
+{
+ printf "%s\n" "$header"
+ cat "$filename"
+ printf "%s\n" "$footer"
+} > "$htmlfile"
+fi
+
+#se non ci sono allerta, e quindi il file è vuoto, pubblico un messaggio generico
+if [ ! -z "alert.txt" ]; then 
+filename="message.txt"
+htmlfile="/directory_web/index.html"
+header='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+         "http://www.w3.org/TR/html4/strict.dtd">
+
+  <head>
+    <title>Allerta meteo</title>
+	<style type="text/css">
+	pre{font-size:200%;}
+	</style>
+  </head>
+  <body>
+    <pre>
+'
+footer='
+    </pre>
+</html>'
+
+{
+ printf "%s\n" "$header"
+ cat "$filename"
+ printf "%s\n" "$footer"
+} > "$htmlfile"
+
 fi
 
 
