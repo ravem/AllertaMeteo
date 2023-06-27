@@ -58,9 +58,9 @@ awk -F , '$5 == "xxxyyy" {print "Zona di validità, comune di:", $5, "\n", "Boll
     	cat /directory_di_lavoro/allerta_domani_comune.txt >> /directory_di_lavoro/alert.txt
     fi
 
-#il job che esegue lo script gira ogni 30 minuti, se il file esiste mando l'aggiornamento via telegram e aggiorno la pagina web
+#il job che esegue lo script gira ogni 30 minuti, se il file è diverso dl precedente mando l'aggiornamento via telegram e aggiorno la pagina web
 
-if [ -e "alert.txt" ]; then
+if ! cmp -s "/directory_di_lavoro/alert.txt" "/directory_di_lavoro/alert_old.txt"; then 
 	curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID --data-urlencode text@alert.txt > /directory_di_lavoro/job_alert.log
 
 # e pubblico la pagina html
