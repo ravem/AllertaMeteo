@@ -6,7 +6,7 @@ Lo script è stato completamente rifatto, in python, basandosi sul lavoro di htt
 I dati vengono scaricati direttamente dal repository del Dipartimento di Protezione Civile, vengono processati estraendo quelli rilevanti per la zona il comune di interesse.
 Nel messaggio Telegram e nella pagina web è stata aggiunta una una formattazione con indicatori colorati che faciliti la lettura.
 
-#Non sono un programmatore, ho largamente sfruttato l'aiuto dell'AI per creare lo script, per cui ogni suggerimento è benvenuto.
+**Non sono un programmatore, ho largamente sfruttato l'aiuto dell'AI per creare lo script, per cui ogni suggerimento è benvenuto.**
 
 NOTA RELATIVA AI DATI RIPORTATI (dal readme contenuto nei bollettini emessi dal Dipartimento)
 
