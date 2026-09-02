@@ -1,0 +1,33 @@
+# Sensitive
+.env
+
+# Logs
+*.log
+
+# Generated
+alert.txt
+alert_old.txt
+lastrun.txt
+send_message.log
+bot_offset.txt
+bot_listener.lock
+
+# Data
+data/
+tmp/
+
+# State
+sent_notifications.json
+subscriptions.json
+cfd/state.json
+
+# PDFs
+cfd/*.pdf
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store

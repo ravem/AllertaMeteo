@@ -1,0 +1,75 @@
+import os
+import requests
+from datetime import datetime
+from pathlib import Path
+
+# === CONFIG ===
+# Telegram
+TOKEN = "6210624308:AAHUpRt8Xgb_s_3qkDR4NPXkRjADqLlwPGk"
+CHAT_ID = "-1001978022892"
+BASE_URL = "https://www.regione.veneto.it/documents/90748/14120056"
+DEST_DIR = "/home/paolo/alert/cfd"
+LOG_FILE = os.path.join(DEST_DIR, "cfd.log")
+FILE_PREFIX = "PC_"
+FILE_SUFFIX = "_CFD.pdf"
+
+# === DATA DI OGGI ===
+today = datetime.now()
+today_str = today.strftime("%y%m%d")
+filename = f"{FILE_PREFIX}{today_str}{FILE_SUFFIX}"
+pdf_url = f"{BASE_URL}/{filename}"
+local_pdf_path = os.path.join(DEST_DIR, filename)
+
+# === CREA CARTELLA DESTINAZIONE ===
+Path(DEST_DIR).mkdir(parents=True, exist_ok=True)
+
+# === GESTIONE LOG FILE (sovrascrive se lunedì) ===
+log_mode = "w" if today.isocalendar().weekday == 0 else "a"
+
+def log(msg):
+    timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    with open(LOG_FILE, log_mode, encoding="utf-8") as f:
+        f.write(f"{timestamp} {msg}\n")
+
+# === CONTROLLA SE ESISTE GIÀ ===
+if os.path.exists(local_pdf_path):
+    log("PDF già presente. Nessun download.")
+else:
+    try:
+        response = requests.get(pdf_url, stream=True, timeout=10)
+        if response.status_code == 200 and response.headers.get('Content-Type', '').startswith('application/pdf'):
+            # Elimina PDF precedenti
+            for f in Path(DEST_DIR).glob("PC_*_CFD.pdf"):
+                try:
+                    f.unlink()
+                except Exception as e:
+                    log(f"Errore eliminando {f.name}: {e}")
+
+            # Scarica nuovo PDF
+            try:
+                with open(local_pdf_path, "wb") as f_out:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f_out.write(chunk)
+                log(f"Scaricato nuovo PDF: {filename}")
+            except Exception as e:
+                log(f"Errore download PDF: {e}")
+                exit(1)
+
+            # Invia su Telegram
+            try:
+                with open(local_pdf_path, 'rb') as f:
+                    resp = requests.post(
+                        f"https://api.telegram.org/bot{TOKEN}/sendDocument",
+                        data={"chat_id": CHAT_ID, "caption": f"Prescrizioni Protezione Civile - {today_str}"},
+                        files={"document": (filename, f)}
+                    )
+                if resp.status_code == 200:
+                    log(f"PDF inviato su Telegram: {filename}")
+                else:
+                    log(f"Errore invio Telegram: {resp.status_code} - {resp.text}")
+            except Exception as e:
+                log(f"Errore invio Telegram: {e}")
+        else:
+            log(f"PDF non disponibile o non valido. HTTP {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        log(f"Errore durante la verifica/scaricamento PDF: {e}")

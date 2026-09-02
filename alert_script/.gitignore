@@ -1,0 +1,35 @@
+# Variabili sensibili
+.env
+
+# File di log
+*.log
+
+# File generati
+alert.txt
+alert_old.txt
+lastrun.txt
+send_message.log
+
+# File di lock / offset
+bot_offset.txt
+bot_listener.lock
+
+# Dati scaricati / generati
+data/
+tmp/
+
+# Stato notifiche e iscrizioni (contengono dati utente)
+sent_notifications.json
+subscriptions.json
+cfd/state.json
+
+# PDF scaricati (ma tieni traccia della directory cfd/)
+cfd/*.pdf
+
+# I dati nella cartella web servono al frontend
+!web/alert/data/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Allerta Meteo - Iscrizione</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #6200ee;
+      --primary-dark: #3700b3;
+      --secondary: #03dac6;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --on-primary: #ffffff;
+      --on-surface: #000000;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --success: #2e7d32;
+      --success-bg: #e8f5e9;
+      --warning-bg: #fff3e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--background);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: var(--surface);
+      box-shadow: 0 4px 10px var(--shadow);
+      border-radius: 12px;
+      max-width: 540px;
+      width: 100%;
+      padding: 30px;
+    }
+
+    h2 {
+      color: var(--primary-dark);
+      text-align: center;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.5em;
+    }
+
+    h2 .material-symbols-outlined {
+      font-size: 28px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 25px;
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 1.1em;
+      color: var(--primary);
+      margin-bottom: 15px;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+      font-size: 0.9em;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      transition: border-color 0.2s;
+      background-color: #fafafa;
+      font-size: 16px;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .section-box {
+      background-color: #fafafa;
+      border: 1px solid #eee;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .section-box.highlight {
+      background-color: #f3e5f5;
+      border-color: #e1bee7;
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-wrapper input {
+      padding-left: 36px;
+    }
+
+    .search-wrapper .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 12px;
+      color: #999;
+      font-size: 20px;
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 5px var(--shadow);
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+      box-shadow: 0 4px 10px var(--shadow);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      background-color: #bbb;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button:disabled:hover {
+      background-color: #bbb;
+      box-shadow: none;
+    }
+
+    .result-box {
+      margin-top: 15px;
+      padding: 16px;
+      border-radius: 8px;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .result-box.success {
+      display: block;
+      background-color: var(--success-bg);
+      border: 1px solid #a5d6a7;
+    }
+
+    .result-box.info {
+      display: block;
+      background-color: #e3f2fd;
+      border: 1px solid #90caf9;
+    }
+
+    .result-box.warning {
+      display: block;
+      background-color: var(--warning-bg);
+      border: 1px solid #ffe0b2;
+    }
+
+    .result-box.error {
+      display: block;
+      background-color: #ffebee;
+      border: 1px solid #ef9a9a;
+      color: #c62828;
+    }
+
+    .code-display {
+      font-family: 'Courier New', monospace;
+      font-size: 1.5em;
+      font-weight: 700;
+      background: #fff;
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      margin: 12px 0;
+      color: var(--primary-dark);
+      letter-spacing: 2px;
+    }
+
+    .step-list {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0 0;
+    }
+
+    .step-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.95em;
+      line-height: 1.4;
+    }
+
+    .step-list li .material-symbols-outlined {
+      color: var(--primary);
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .zone-info {
+      margin-top: 10px;
+      padding: 10px;
+      background: #e8eaf6;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: #333;
+    }
+
+    .zone-info strong {
+      color: var(--primary-dark);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 10px;
+      }
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>
+      <span class="material-symbols-outlined">notifications_active</span>
+      Allerta Meteo
+    </h2>
+    <p class="subtitle">Iscriviti per ricevere i messagi di allerta meteo che vengono pubblicati dal Dipartimento di Protezione Civile nella tua zona, via Telegram. 
+      <br><br>Il servizio &egrave; sperimentale e va usato solo per scopi informativi. 
+      <br><br>Il nickname Telegram inserito viene salvato SOLO per poter configurare l'invio dei messaggi.</p>
+
+    <!-- STEP 1: Seleziona comune -->
+    <div class="section-box highlight">
+      <h3>
+        <span class="material-symbols-outlined">search</span>
+        1. Scegli il tuo comune
+      </h3>
+      <label for="comune-input">Comune</label>
+      <div class="search-wrapper">
+        <span class="material-symbols-outlined search-icon">location_city</span>
+        <input type="text" id="comune-input" placeholder="Inizia a digitare il nome del comune..." autocomplete="off" />
+      </div>
+      <div id="comune-info" class="zone-info" style="display:none;"></div>
+    </div>
+
+    <!-- HONEYPOT (invisibile) -->
+    <div style="position:absolute;left:-9999px;" aria-hidden="true">
+      <label for="hp-field">Non compilare</label>
+      <input type="text" id="hp-field" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <!-- STEP 2: Verifica + Genera codice -->
+    <div class="section-box">
+      <h3>
+        <span class="material-symbols-outlined">vpn_key</span>
+        2. Verifica e genera il codice
+      </h3>
+      <label for="captcha-answer">Quanto fa <span id="captcha-q">5 + 3</span>?</label>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input type="text" id="captcha-answer" placeholder="Risultato" style="width:120px;margin-bottom:0;" />
+        <button id="generate-btn" disabled style="flex:1;margin-top:0;">
+          <span class="material-symbols-outlined">token</span>
+          Genera codice
+        </button>
+      </div>
+      <p style="font-size:0.85em;color:#999;margin:8px 0 0;">
+        Riceverai un codice da utilizzare su Telegram per completare l'iscrizione.
+      </p>
+    </div>
+
+    <!-- STEP 3: Istruzioni -->
+    <div id="result-area"></div>
+
+    <!-- Back button -->
+    <div style="display:flex;justify-content:center;margin-top:20px;">
+      <button onclick="if(history.length>1)history.back();else window.location.href='/'" style="background-color:#bbb;color:#000;padding:10px 16px;border:none;border-radius:8px;font-weight:500;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,0.1);font-family:Roboto,sans-serif;font-size:14px;display:inline-flex;align-items:center;gap:6px;">
+        <span style="font-size:18px;">←</span> Torna indietro
+      </button>
+    </div>
+
+  <script>
+    // Carica i comuni dal CSV
+    let comuniData = [];
+    let selectedComune = null;
+
+    async function loadComuni() {
+      try {
+        const resp = await fetch('data/zone/zone_comuni.csv');
+        if (!resp.ok) throw new Error('Percorso primario non disponibile');
+        const text = await resp.text();
+        parseCSV(text);
+      } catch (e) {
+        // Fallback: percorsi alternativi
+        try {
+          const resp = await fetch('/alert/data/zone/zone_comuni.csv');
+          if (!resp.ok) throw new Error('Percorso fallback non disponibile');
+          const text = await resp.text();
+          parseCSV(text);
+        } catch (e2) {
+          showResult('error', 'Errore', 'Impossibile caricare l\'elenco dei comuni. Riprova più tardi.');
+        }
+      }
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',');
+      for (let i = 1; i < lines.length; i++) {
+        const vals = lines[i].split(',');
+        if (vals.length >= 7) {
+          comuniData.push({
+            codice: vals[0],
+            comune: vals[1],
+            provincia: vals[2],
+            sigla: vals[3],
+            regione: vals[4],
+            zona_codice: vals[5],
+            zona_nome: vals[6]
+          });
+        }
+      }
+      console.log(`Caricati ${comuniData.length} comuni`);
+    }
+
+    // Ricerca comuni con autocomplete
+    const input = document.getElementById('comune-input');
+    const infoDiv = document.getElementById('comune-info');
+    const generateBtn = document.getElementById('generate-btn');
+    const resultArea = document.getElementById('result-area');
+
+    let searchTimeout = null;
+    let captchaAnswer = 0;
+
+    // Genera CAPTCHA iniziale
+    function generaCaptcha() {
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
+      captchaAnswer = a + b;
+      document.getElementById('captcha-q').textContent = a + ' + ' + b;
+      document.getElementById('captcha-answer').value = '';
+    }
+    generaCaptcha();
+
+    // Ricarica CAPTCHA al click sull'operazione
+    document.getElementById('captcha-q').addEventListener('click', generaCaptcha);
+    document.getElementById('captcha-answer').addEventListener('input', function() {
+      verificaForm();
+    });
+
+    function verificaForm() {
+      const captchaVal = document.getElementById('captcha-answer').value.trim();
+      const captchaOk = parseInt(captchaVal) === captchaAnswer;
+      generateBtn.disabled = !(selectedComune && captchaOk);
+    }
+
+    input.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => searchComune(this.value), 150);
+    });
+
+    function selezionaComune(d) {
+      selectedComune = d;
+      input.value = d.comune + ' (' + d.provincia + ')';
+      infoDiv.style.display = 'block';
+      infoDiv.style.background = '#e8f5e9';
+      infoDiv.innerHTML = `
+        <strong>${d.comune}</strong> (${d.provincia}, ${d.regione})<br>
+        Zona di allerta: <strong>${d.zona_codice}</strong> — ${d.zona_nome}
+      `;
+      verificaForm();
+    }
+
+    function searchComune(query) {
+      if (!query || query.length < 2) {
+        infoDiv.style.display = 'none';
+        selectedComune = null;
+        generateBtn.disabled = true;
+        return;
+      }
+
+      const q = query.toLowerCase().trim();
+
+      // Cerca solo per nome comune (non per provincia)
+      const results = comuniData.filter(d =>
+        d.comune.toLowerCase().includes(q)
+      );
+
+      if (results.length === 0) {
+        infoDiv.style.display = 'block';
+        infoDiv.innerHTML = 'Nessun comune trovato. Prova con un altro nome.';
+        infoDiv.style.background = '#ffebee';
+        selectedComune = null;
+        generateBtn.disabled = true;
+        return;
+      }
+
+      // Se è un risultato singolo, selezionalo direttamente
+      if (results.length === 1) {
+        selezionaComune(results[0]);
+        return;
+      }
+
+      // Se c'è un match esatto (case-insensitive), selezionalo subito
+      const esatto = results.find(d => d.comune.toLowerCase() === q);
+      if (esatto) {
+        selezionaComune(esatto);
+        return;
+      }
+
+      // Multipli risultati: mostra i primi 10 (click sicuri con dataset)
+      const mostrati = results.slice(0, 10);
+      let html = `Trovati ${results.length} comuni. Seleziona quello giusto:<br><br>`;
+      mostrati.forEach((d, i) => {
+        html += `<a href="#" data-idx="${i}" class="comune-link" style="display:block;padding:4px 0;color:var(--primary);text-decoration:none;">
+          ${d.comune} (${d.provincia})
+        </a>`;
+      });
+      if (results.length > 10) {
+        html += `<div style="margin-top:4px;font-size:0.85em;color:#999;">... e altri ${results.length - 10} comuni. Affina la ricerca.</div>`;
+      }
+      infoDiv.style.display = 'block';
+      infoDiv.style.background = '#e3f2fd';
+      infoDiv.innerHTML = html;
+
+      // Attacca event listener ai link (senza onclick inline)
+      infoDiv.querySelectorAll('.comune-link').forEach(el => {
+        el.addEventListener('click', function(e) {
+          e.preventDefault();
+          const idx = parseInt(this.dataset.idx);
+          if (mostrati[idx]) selezionaComune(mostrati[idx]);
+        });
+      });
+
+      selectedComune = null;
+      generateBtn.disabled = true;
+      infoDiv.style.display = 'block';
+      infoDiv.style.background = '#e3f2fd';
+      infoDiv.innerHTML = html;
+      selectedComune = null;
+      generateBtn.disabled = true;
+    }
+
+    // Generazione codice
+    generateBtn.addEventListener('click', async function() {
+      if (!selectedComune) return;
+
+      // Verifica CAPTCHA
+      const captchaVal = document.getElementById('captcha-answer').value.trim();
+      if (parseInt(captchaVal) !== captchaAnswer) {
+        showResult('error', 'Verifica fallita', 'Risposta errata. Ricarica il captcha cliccando sul numero.');
+        generaCaptcha();
+        this.disabled = false;
+        this.innerHTML = '<span class="material-symbols-outlined">token</span> Genera codice';
+        return;
+      }
+
+      this.disabled = true;
+      this.innerHTML = '<span class="loading-spinner"></span> Generazione in corso...';
+
+      try {
+        const resp = await fetch('/alert/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            comune: selectedComune.comune,
+            provincia: selectedComune.provincia,
+            regione: selectedComune.regione,
+            zona_codice: selectedComune.zona_codice,
+            zona_nome: selectedComune.zona_nome,
+            captcha: parseInt(captchaVal),
+            hp: document.getElementById('hp-field').value
+          })
+        });
+
+        const data = await resp.json();
+
+        if (data.status === 'ok') {
+          showSuccess(data.token);
+        } else {
+          showResult('error', 'Errore', data.message || 'Errore durante la generazione del codice.');
+        }
+      } catch (e) {
+        // Se l'API non è raggiungibile, usa fallback locale
+        showResult('error', 'API non disponibile', 
+          'Il server di iscrizione non è raggiungibile. ' +
+          'Contatta l\'amministratore per configurare l\'endpoint API.');
+      } finally {
+        this.disabled = false;
+        this.innerHTML = '<span class="material-symbols-outlined">token</span> Genera codice di iscrizione';
+      }
+    });
+
+    function showSuccess(token) {
+      resultArea.innerHTML = `
+        <div class="result-box success">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span class="material-symbols-outlined" style="color:var(--success);font-size:24px;">check_circle</span>
+            <strong style="font-size:1.1em;">Codice generato con successo!</strong>
+          </div>
+          <p style="margin:0 0 8px;">Il tuo codice di iscrizione:</p>
+          <div class="code-display">${token}</div>
+          <p style="margin:12px 0 8px;"><strong>Comune selezionato:</strong> ${selectedComune.comune} (${selectedComune.provincia})</p>
+          <div class="zone-info">
+            Zona allerta: <strong>${selectedComune.zona_codice}</strong> — ${selectedComune.zona_nome}
+          </div>
+        </div>
+        <div class="result-box info">
+          <strong style="display:flex;align-items:center;gap:5px;">
+            <span class="material-symbols-outlined" style="font-size:20px;">info</span>
+            Come completare l'iscrizione:
+          </strong>
+          <ol style="margin:10px 0 0;padding-left:20px;line-height:1.6;">
+            <li>Apri Telegram sul tuo telefono o computer</li>
+            <li>Cerca il bot su Telegram (es. <strong>@IlTuoBot</strong>) e avvia una chat</li>
+            <li>Invia il messaggio: <code style="background:#e8eaf6;padding:2px 6px;border-radius:4px;font-weight:bold;">/subscribe ${token}</code></li>
+            <li>Riceverai la conferma dell'iscrizione!</li>
+          </ol>
+        </div>
+        <div class="result-box warning">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="material-symbols-outlined" style="font-size:20px;">schedule</span>
+            <span>Il codice scade tra <strong>24 ore</strong>.</span>
+          </div>
+        </div>
+      `;
+      resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showResult(type, title, message) {
+      const icons = { error: 'error', warning: 'warning', success: 'check_circle', info: 'info' };
+      resultArea.innerHTML = `
+        <div class="result-box ${type}">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span class="material-symbols-outlined" style="font-size:22px;">${icons[type] || 'info'}</span>
+            <strong>${title}</strong>
+          </div>
+          <p style="margin:0;">${message}</p>
+        </div>
+      `;
+    }
+
+    // Carica comuni all'avvio
+    loadComuni();
+  </script>
+</body>
+</html>

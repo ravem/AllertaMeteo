@@ -1,0 +1,17 @@
+[Unit]
+Description=Bot Telegram Allerte Meteo (ascolta comandi /subscribe)
+Documentation=https://init5.it/alert/iscriviti.html
+After=network.target
+
+[Service]
+Type=simple
+User=IL_TUO_USER
+WorkingDirectory=/percorso/del/progetto
+ExecStart=/usr/bin/python3 /percorso/del/progetto/bot_listener.py --daemon
+Restart=always
+RestartSec=5
+StandardOutput=append:/percorso/del/progetto/bot_listener.log
+StandardError=append:/percorso/del/progetto/bot_listener_error.log
+
+[Install]
+WantedBy=multi-user.target
