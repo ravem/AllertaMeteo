@@ -586,7 +586,6 @@ def _invia_se_nuovo(registro: dict, iscritto: dict,
             zona_nome = (info_oggi.get("zona_nome") or info_domani.get("zona_nome") or "")
 
     parte_zona = f" — Zona {zona_codice}" if zona_codice else ""
-    parte_zona_nome = f" ({zona_nome})" if zona_nome else ""
 
     lines = ["ALLERTA METEO PER LA TUA ZONA!"]
 
@@ -594,7 +593,7 @@ def _invia_se_nuovo(registro: dict, iscritto: dict,
         giorno_label = "OGGI" if giorno == "oggi" else "DOMANI"
         lines.append("")
         lines.append(f"GIORNO: {giorno_label}")
-        lines.append(f"COMUNE: {comune} ({provincia}){parte_zona}{parte_zona_nome}")
+        lines.append(f"COMUNE: {comune} ({provincia}){parte_zona}")
         lines.append("")
         lines.append(f"Idrogeologico: {_formatta_livello_allerta(info.get('avviso_idrogeologico', ''))}")
         lines.append(f"Temporali: {_formatta_livello_allerta(info.get('avviso_temporali', ''))}")
