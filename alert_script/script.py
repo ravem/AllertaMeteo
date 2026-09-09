@@ -474,6 +474,7 @@ def _trova_zone_allertate(df_oggi, df_domani) -> dict:
                 zone[zona] = {"oggi": None, "domani": None}
             zone[zona][giorno] = {
                 "zona_codice": zona,
+                "zona_nome": str(row.get("zona_nome", "")).strip(),
                 "data_pubblicazione": row.get("data_pubblicazione", ""),
                 "data_validita_inizio": row.get("data_validita_inizio", ""),
                 "data_validita_fine": row.get("data_validita_fine", ""),
@@ -484,6 +485,58 @@ def _trova_zone_allertate(df_oggi, df_domani) -> dict:
             }
 
     return zone
+
+
+def _formatta_livello_allerta(testo_originale: str) -> str:
+    """
+    Estrae il livello di allerta dal testo e lo restituisce
+    con emoji colorata e testo semplificato.
+
+    Esempi:
+      "Ordinaria / ALLERTA GIALLA"  -> "🟡 Allerta Gialla"
+      ""                             -> "⚪ Nessuna allerta"
+      "Assenza di fenomeni..."       -> "⚪ Nessuna allerta"
+    """
+    if not testo_originale or not testo_originale.strip():
+        return "⚪ Nessuna allerta"
+
+    # Prendi la parte dopo l'ultimo "/" se presente
+    livello = testo_originale
+    if "/" in testo_originale:
+        livello = testo_originale.rsplit("/", 1)[-1].strip()
+
+    livello_up = livello.upper()
+
+    if "ROSSA" in livello_up:
+        return "🔴 Allerta Rossa"
+    elif "ARANCIONE" in livello_up:
+        return "🟠 Allerta Arancione"
+    elif "GIALLA" in livello_up:
+        return "🟡 Allerta Gialla"
+    elif "NESSUNA" in livello_up or "ASSENZA" in livello_up or "SENZA" in livello_up:
+        return "🟢 Nessuna allerta"
+    else:
+        return f"🟢 {livello}"
+
+
+def _formatta_data_ora(data_iso: str) -> str:
+    """Converte data ISO (2026-09-08T15:19:00) in dd/mm/yyyy hh:mm."""
+    if not data_iso:
+        return ""
+    try:
+        # Rimuovi eventuale fuso orario (es. +00:00, Z)
+        data_pulita = data_iso.replace("Z", "").split("+")[0].split("-")[0] if data_iso.count("-") > 2 else data_iso
+        # Prova formato ISO completo
+        for fmt in ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d"]:
+            try:
+                dt = datetime.strptime(data_iso[:19], fmt)
+                return dt.strftime("%d/%m/%Y %H:%M")
+            except ValueError:
+                continue
+        # Fallback: restituisci la data originale troncata
+        return data_iso[:10]
+    except Exception:
+        return data_iso[:10]
 
 
 def _invia_se_nuovo(registro: dict, iscritto: dict,
@@ -520,34 +573,40 @@ def _invia_se_nuovo(registro: dict, iscritto: dict,
     # Costruisci il testo del messaggio
     comune = iscritto.get("comune", "?")
     provincia = iscritto.get("provincia", "")
-    zona_codice = iscritto.get("zona_codice", "")
-    # Prendi il nome zona dal primo giorno disponibile
-    info_oggi = alerta_info.get("oggi") or {}
-    info_domani = alerta_info.get("domani") or {}
-    zona_nome = iscritto.get("zona_nome", info_oggi.get("zona_codice", info_domani.get("zona_codice", "")))
+    zona_codice = (iscritto.get("zona_codice") or "").strip()
+    zona_nome = (iscritto.get("zona_nome") or "").strip()
 
-    lines = [f"ALLERTA METEO PER LA TUA ZONA!"]
-    pub_time = ""
+    # Se manca zona_codice o zona_nome, prova a prenderli dai dati allerta
+    if not zona_codice or not zona_nome:
+        info_oggi = alerta_info.get("oggi") or {}
+        info_domani = alerta_info.get("domani") or {}
+        if not zona_codice:
+            zona_codice = (info_oggi.get("zona_codice") or info_domani.get("zona_codice") or "")
+        if not zona_nome:
+            zona_nome = (info_oggi.get("zona_nome") or info_domani.get("zona_nome") or "")
+
+    parte_zona = f" — Zona {zona_codice}" if zona_codice else ""
+    parte_zona_nome = f" ({zona_nome})" if zona_nome else ""
+
+    lines = ["ALLERTA METEO PER LA TUA ZONA!"]
 
     for giorno, info in parti_giorno:
         giorno_label = "OGGI" if giorno == "oggi" else "DOMANI"
-        lines.append(f"")
+        lines.append("")
         lines.append(f"GIORNO: {giorno_label}")
-        lines.append(f"COMUNE: {comune} ({provincia}) — Zona {zona_codice}")
-        lines.append(f"")
-        lines.append(f"Criticita: {info.get('avviso_criticita', '')}")
-        lines.append(f"Idrogeologico: {info.get('avviso_idrogeologico', '')}")
-        lines.append(f"Temporali: {info.get('avviso_temporali', '')}")
-        lines.append(f"Idraulico: {info.get('avviso_idraulico', '')}")
-        lines.append(f"")
+        lines.append(f"COMUNE: {comune} ({provincia}){parte_zona}{parte_zona_nome}")
+        lines.append("")
+        lines.append(f"Idrogeologico: {_formatta_livello_allerta(info.get('avviso_idrogeologico', ''))}")
+        lines.append(f"Temporali: {_formatta_livello_allerta(info.get('avviso_temporali', ''))}")
+        lines.append(f"Idraulico: {_formatta_livello_allerta(info.get('avviso_idraulico', ''))}")
+        lines.append("")
         data_pub = str(info.get("data_pubblicazione", ""))
-        if data_pub:
-            pub_time = data_pub
         data_inizio = str(info.get("data_validita_inizio", ""))
         data_fine = str(info.get("data_validita_fine", ""))
+        if data_pub:
+            lines.append(f"BOLLETTINO PUBBLICATO: {_formatta_data_ora(data_pub)}")
         if data_inizio and data_fine:
-            lines.append(f"BOLLETTINO PUBBLICATO: {data_pub}")
-            lines.append(f"VALIDITA: {data_inizio} -> {data_fine}")
+            lines.append(f"VALIDITA: {_formatta_data_ora(data_inizio)} ➜ {_formatta_data_ora(data_fine)}")
 
     testo = "\n".join(lines)
 
