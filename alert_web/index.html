@@ -254,6 +254,19 @@
       color: var(--primary-dark);
     }
 
+    .comune-link {
+      display: block;
+      padding: 6px 8px;
+      color: var(--primary);
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .comune-link:hover {
+      background: #e8eaf6;
+      text-decoration: underline;
+    }
+
     .loading-spinner {
       display: inline-block;
       width: 18px;
@@ -441,9 +454,14 @@
       const q = query.toLowerCase().trim();
 
       // Cerca solo per nome comune (non per provincia)
-      const results = comuniData.filter(d =>
+      let results = comuniData.filter(d =>
         d.comune.toLowerCase().includes(q)
       );
+
+      // Limita a massimo 20 risultati per non appesantire
+      if (results.length > 20) {
+        results = results.slice(0, 20);
+      }
 
       if (results.length === 0) {
         infoDiv.style.display = 'block';
@@ -454,48 +472,26 @@
         return;
       }
 
-      // Se è un risultato singolo, selezionalo direttamente
-      if (results.length === 1) {
-        selezionaComune(results[0]);
-        return;
-      }
-
-      // Se c'è un match esatto (case-insensitive), selezionalo subito
-      const esatto = results.find(d => d.comune.toLowerCase() === q);
-      if (esatto) {
-        selezionaComune(esatto);
-        return;
-      }
-
-      // Multipli risultati: mostra i primi 10 (click sicuri con dataset)
-      const mostrati = results.slice(0, 10);
-      let html = `Trovati ${results.length} comuni. Seleziona quello giusto:<br><br>`;
-      mostrati.forEach((d, i) => {
-        html += `<a href="#" data-idx="${i}" class="comune-link" style="display:block;padding:4px 0;color:var(--primary);text-decoration:none;">
-          ${d.comune} (${d.provincia})
-        </a>`;
+      // Mostra sempre la lista dei comuni trovati, mai auto-selezionare
+      let html = `Trovati ${results.length} comune${results.length > 1 ? 'i' : ''}. Seleziona quello giusto:<br><br>`;
+      results.forEach((d, i) => {
+        const evidenzia = d.comune.toLowerCase() === q ? ' style="font-weight:700;"' : '';
+        html += `<a href="#" data-idx="${i}" class="comune-link"${evidenzia}>${d.comune} (${d.provincia})</a>`;
       });
-      if (results.length > 10) {
-        html += `<div style="margin-top:4px;font-size:0.85em;color:#999;">... e altri ${results.length - 10} comuni. Affina la ricerca.</div>`;
-      }
+
       infoDiv.style.display = 'block';
       infoDiv.style.background = '#e3f2fd';
       infoDiv.innerHTML = html;
 
-      // Attacca event listener ai link (senza onclick inline)
+      // Attacca event listener ai link
       infoDiv.querySelectorAll('.comune-link').forEach(el => {
         el.addEventListener('click', function(e) {
           e.preventDefault();
           const idx = parseInt(this.dataset.idx);
-          if (mostrati[idx]) selezionaComune(mostrati[idx]);
+          if (results[idx]) selezionaComune(results[idx]);
         });
       });
 
-      selectedComune = null;
-      generateBtn.disabled = true;
-      infoDiv.style.display = 'block';
-      infoDiv.style.background = '#e3f2fd';
-      infoDiv.innerHTML = html;
       selectedComune = null;
       generateBtn.disabled = true;
     }
