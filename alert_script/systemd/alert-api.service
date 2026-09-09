@@ -1,0 +1,17 @@
+[Unit]
+Description=API Iscrizione Allerte Meteo
+Documentation=https://init5.it/alert/iscriviti.html
+After=network.target nginx.service
+
+[Service]
+Type=simple
+User=paolo
+WorkingDirectory=/home/paolo/alert
+ExecStart=/usr/bin/python3 /home/paolo/alert/api_server.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/home/paolo/alert/api_server.log
+StandardError=append:/home/paolo/alert/api_server_error.log
+
+[Install]
+WantedBy=multi-user.target
