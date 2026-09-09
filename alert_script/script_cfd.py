@@ -171,19 +171,24 @@ def _get_destinatari() -> list[int]:
 
 
 def cleanup_old_pdfs(prefisso: str):
-    """Tiene solo gli ultimi 2 PDF per prefisso (BVM/BAR)."""
+    """Tiene solo il PDF più recente per prefisso (BVM/BAR), elimina tutti i più vecchi."""
     pdfs = sorted(config.CFD_DIR.glob(f"{prefisso}_*_CFD.pdf"), reverse=True)
-    for old in pdfs[2:]:
+    for old in pdfs[1:]:
         try:
             old.unlink()
-            log(f"Pulito PDF vecchio: {old.name}")
+            log(f"Eliminato PDF vecchio: {old.name}")
         except OSError as e:
-            log(f"Errore pulizia {old.name}: {e}")
+            log(f"Errore eliminazione {old.name}: {e}")
 
 
 # ── Logica principale ───────────────────────────────────────────────────
 def process_documents(state: dict) -> list[str]:
-    """Cerca PDF CFD non ancora inviati e li scarica/invia."""
+    """Cerca PDF CFD non ancora inviati e li scarica/invia.
+
+    Per ogni prefisso (BVM, BAR) tiene SOLO il più recente
+    tra quelli trovati disponibili, evitando di inviare
+    tutti i giorni precedenti.
+    """
     results = []
 
     documenti = cerca_pdf_disponibili()
@@ -191,16 +196,24 @@ def process_documents(state: dict) -> list[str]:
         log("Nessun PDF CFD trovato.")
         return ["Nessun PDF CFD trovato."]
 
-    nuovi = []
+    # Raggruppa per prefisso e tieni solo il più recente per ciascuno
+    migliori_per_prefisso: dict[str, dict] = {}
     for doc in documenti:
+        pref = doc["prefisso"]
+        if pref not in migliori_per_prefisso or doc["data"] > migliori_per_prefisso[pref]["data"]:
+            migliori_per_prefisso[pref] = doc
+
+    # Filtra solo quelli non ancora inviati (tra i più recenti per prefisso)
+    nuovi = []
+    for doc in migliori_per_prefisso.values():
         state_key = doc["filename"]
         if state_key not in state:
             nuovi.append(doc)
         else:
-            log(f"Gia inviato: {doc['filename']}")
+            log(f"Gia inviato (più recente per {doc['prefisso']}): {doc['filename']}")
 
     if not nuovi:
-        log("Nessun nuovo PDF CFD da inviare.")
+        log("Nessun nuovo PDF CFD da inviare (i più recenti sono già stati inviati).")
         return ["Nessun nuovo PDF CFD da inviare."]
 
     for doc in nuovi:
